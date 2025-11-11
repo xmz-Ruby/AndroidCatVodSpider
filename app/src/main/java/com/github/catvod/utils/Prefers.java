@@ -50,4 +50,24 @@ public class Prefers {
             getPrefers().edit().putLong(key, (Long) obj).apply();
         }
     }
+
+    public static long getLong(String key, long defaultValue) {
+        return getPrefers().getLong(key, defaultValue);
+    }
+
+    public static long getLong(String key) {
+        return getLong(key, 0L);
+    }
+
+    public static void putString(String key, String value) {
+        getPrefers().edit().putString(key, value).apply();
+    }
+
+    public static void putLong(String key, long value) {
+        getPrefers().edit().putLong(key, value).apply();
+    }
+
+    public static void remove(String key) {
+        getPrefers().edit().remove(key).apply();
+    }
 }

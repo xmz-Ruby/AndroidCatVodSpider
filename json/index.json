@@ -1,5 +1,5 @@
 {
-  "spider": "https://andoridspidermt.netlify.app/jar/custom_spider.jar;md5;05364dcab53ddf2f06f3a483b8a84c8a",
+  "spider": "./custom_spider.jar",
   "lives": [
     {
       "name": "电视直播",

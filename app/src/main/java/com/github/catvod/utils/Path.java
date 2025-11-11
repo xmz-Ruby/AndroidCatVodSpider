@@ -1,12 +1,22 @@
 package com.github.catvod.utils;
 
-import android.os.Environment;
-import com.github.catvod.crawler.SpiderDebug;
+import static com.github.catvod.spider.Init.getAppName;
 
-import java.io.*;
+import android.os.Environment;
+
+import com.github.catvod.crawler.SpiderDebug;
+import com.github.catvod.spider.Init;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Path {
 
@@ -16,20 +26,87 @@ public class Path {
     }
 
     public static File download() {
+        if (isInternalStorageMode()) {
+            return mkdir(new File(Init.context().getFilesDir(), "downloads"));
+        }
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 
     public static File root() {
+        if (isInternalStorageMode()) {
+            return Init.context().getFilesDir();
+        }
         return Environment.getExternalStorageDirectory();
+    }
+
+    private static boolean isInternalStorageMode() {
+        try {
+            return Objects.equals(getAppName(), "让我看看");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static File cache() {
+        return Init.context().getCacheDir();
+    }
+
+    public static File files() {
+        return Init.context().getFilesDir();
+    }
+
+    public static File databases() {
+        // Try getDatabasesDir() for API 24+
+        try {
+            return (File) Init.context().getClass().getMethod("getDatabasesDir").invoke(Init.context());
+        } catch (Exception e) {
+            // Fallback for older APIs: construct path from data directory
+            return new File(Init.context().getApplicationInfo().dataDir + File.separator + "databases");
+        }
     }
 
     public static File tv() {
         return mkdir(new File(root() + File.separator + "TV"));
     }
 
+    public static File tvbox() {
+        return mkdir(new File(root() + File.separator + "TVBox"));
+    }
+
+    public static File tvboxOsc() {
+        return mkdir(new File(root() + File.separator + "TVBoxOSC"));
+    }
+
+    public static File tvboxOscTvbox() {
+        return mkdir(new File(root() + File.separator + "TVBoxOSC" + File.separator + "tvbox"));
+    }
+
+    public static File databases(String path) {
+        return mkdir(new File(databases(), path));
+    }
+
+    public static File cache(String path) {
+        return mkdir(new File(cache(), path));
+    }
+
     public static File tv(String name) {
         if (!name.startsWith(".")) name = "." + name;
         return new File(tv(), name);
+    }
+
+    public static File tvbox(String name) {
+        if (!name.startsWith(".")) name = "." + name;
+        return new File(tvbox(), name);
+    }
+
+    public static File tvboxOsc(String name) {
+        if (!name.startsWith(".")) name = "." + name;
+        return new File(tvboxOsc(), name);
+    }
+
+    public static File tvboxOscTvbox(String name) {
+        if (!name.startsWith(".")) name = "." + name;
+        return new File(tvboxOscTvbox(), name);
     }
 
     public static String read(File file) {
@@ -45,7 +122,7 @@ public class Path {
             byte[] data = new byte[is.available()];
             is.read(data);
             is.close();
-            return new String(data, "UTF-8");
+            return new String(data, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
             return "";
@@ -64,9 +141,14 @@ public class Path {
             fos.close();
             return file;
         } catch (Exception ignored) {
-            ignored.printStackTrace();
-            SpiderDebug.log("写入文件出错：" + ignored.getMessage());
             return file;
+        }
+    }
+
+    public static void copy(File in, File out) {
+        try {
+            copy(new FileInputStream(in), out);
+        } catch (Exception ignored) {
         }
     }
 
@@ -82,6 +164,17 @@ public class Path {
         }
     }
 
+    public static void move(File in, File out) {
+        copy(in, out);
+        clear(in);
+    }
+
+    public static void clear(File dir) {
+        if (dir == null) return;
+        if (dir.isDirectory()) for (File file : list(dir)) clear(file);
+        if (dir.delete()) SpiderDebug.log("Deleted:" + dir.getAbsolutePath());
+    }
+
     public static List<File> list(File dir) {
         File[] files = dir.listFiles();
         return files == null ? Collections.emptyList() : Arrays.asList(files);
@@ -89,6 +182,7 @@ public class Path {
 
     public static File create(File file) throws Exception {
         try {
+            if (file.getParentFile() != null) mkdir(file.getParentFile());
             if (!file.canWrite()) file.setWritable(true);
             if (!file.exists()) file.createNewFile();
             Shell.exec("chmod 777 " + file);
