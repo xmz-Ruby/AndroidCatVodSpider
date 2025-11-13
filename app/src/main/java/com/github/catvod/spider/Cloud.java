@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.github.catvod.api.TianyiApi.URL_CONTAIN;
 
 /**
  * @author ColaMint & Adam & FongMi
@@ -22,7 +21,6 @@ public class Cloud extends Spider {
     private Quark quark = null;
     /* private Ali ali = null;
      private UC uc = null;*/
-    private TianYi tianYi = null;
     private YiDongYun yiDongYun = null;
     private BaiDuPan baiDuPan = null;
     private Pan123 pan123 = null;
@@ -33,7 +31,6 @@ public class Cloud extends Spider {
         quark = new Quark();
        /* uc = new UC();
         ali = new Ali();*/
-        tianYi = new TianYi();
         yiDongYun = new YiDongYun();
         baiDuPan = new BaiDuPan();
         pan123 = new Pan123();
@@ -41,7 +38,6 @@ public class Cloud extends Spider {
         quark.init(context, first && ext.has("cookie") ? ext.get("cookie").getAsString() : "");
       /*  uc.init(context, first && ext.has("uccookie") ? ext.get("uccookie").getAsString() : "");
         ali.init(context, first && ext.has("token") ? ext.get("token").getAsString() : "");*/
-        tianYi.init(context, first && ext.has("tianyicookie") ? ext.get("tianyicookie").getAsString() : "");
         yiDongYun.init(context, "");
         baiDuPan.init(context, "");
         pan123.init(context, "");
@@ -59,9 +55,7 @@ public class Cloud extends Spider {
             return quark.detailContent(shareUrl);
         } /*else if (shareUrl.get(0).matches(Util.patternUC)) {
             return uc.detailContent(shareUrl);
-        } */ else if (shareUrl.get(0).contains(URL_CONTAIN)) {
-            return tianYi.detailContent(shareUrl);
-        } else if (shareUrl.get(0).contains(YiDongYun.URL_START)) {
+        } */else if (shareUrl.get(0).contains(YiDongYun.URL_START)) {
             return yiDongYun.detailContent(shareUrl);
         } else if (shareUrl.get(0).contains(BaiDuPan.URL_START)) {
             return baiDuPan.detailContent(shareUrl);
@@ -80,9 +74,7 @@ public class Cloud extends Spider {
             return quark.playerContent(flag, id, vipFlags);
         } /*else if (flag.contains("uc")) {
             return uc.playerContent(flag, id, vipFlags);
-        } */ else if (flag.contains("天意")) {
-            return tianYi.playerContent(flag, id, vipFlags);
-        } else if (flag.contains("移动")) {
+        } */ else if (flag.contains("移动")) {
             return yiDongYun.playerContent(flag, id, vipFlags);
         }/* else {
             return ali.playerContent(flag, id, vipFlags);
@@ -106,9 +98,7 @@ public class Cloud extends Spider {
                 from.add(quark.detailContentVodPlayFrom(List.of(shareLink), i));
             } /*else if (shareLink.matches(Util.patternAli)) {
                 from.add(ali.detailContentVodPlayFrom(List.of(shareLink), i));
-            } */ else if (shareLink.contains(URL_CONTAIN)) {
-                from.add(tianYi.detailContentVodPlayFrom(List.of(shareLink), i));
-            } else if (shareLink.contains(YiDongYun.URL_START)) {
+            } */ else if (shareLink.contains(YiDongYun.URL_START)) {
                 from.add(yiDongYun.detailContentVodPlayFrom(List.of(shareLink), i));
             } else if (shareLink.contains(BaiDuPan.URL_START)) {
                 from.add(baiDuPan.detailContentVodPlayFrom(List.of(shareLink), i));
@@ -130,9 +120,7 @@ public class Cloud extends Spider {
                 urls.add(quark.detailContentVodPlayUrl(List.of(shareLink)));
             }/* else if (shareLink.matches(Util.patternAli)) {
                 urls.add(ali.detailContentVodPlayUrl(List.of(shareLink)));
-            } */ else if (shareLink.contains(URL_CONTAIN)) {
-                urls.add(tianYi.detailContentVodPlayUrl(List.of(shareLink)));
-            } else if (shareLink.contains(YiDongYun.URL_START)) {
+            } */ else if (shareLink.contains(YiDongYun.URL_START)) {
                 urls.add(yiDongYun.detailContentVodPlayUrl(List.of(shareLink)));
             } else if (shareLink.contains(BaiDuPan.URL_START)) {
                 urls.add(baiDuPan.detailContentVodPlayUrl(List.of(shareLink)));

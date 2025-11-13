@@ -5,7 +5,9 @@ import static com.github.catvod.spider.Init.getAppName;
 import android.os.Environment;
 
 import com.github.catvod.crawler.SpiderDebug;
+import com.github.catvod.spider.DeviceInfoHelper;
 import com.github.catvod.spider.Init;
+import com.github.catvod.spider.UpdateManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,9 +41,11 @@ public class Path {
         return Environment.getExternalStorageDirectory();
     }
 
-    private static boolean isInternalStorageMode() {
+    public static boolean isInternalStorageMode() {
         try {
-            return Objects.equals(getAppName(), "让我看看");
+            String deviceType = DeviceInfoHelper.getDeviceType();
+            boolean isPhone = "phone".equals(deviceType);
+            return Objects.equals(getAppName(), "让我看看") || isPhone || !UpdateManager.ensureFileAccessPermission("0");
         } catch (Exception e) {
             return false;
         }

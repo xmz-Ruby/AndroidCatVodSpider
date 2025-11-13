@@ -211,7 +211,7 @@ public class UpdateManager {
      */
     public static void downloadFile() {
         try {
-            File plusZipFile = new File(Path.root(), "TVBox.zip");
+            File plusZipFile = new File(Path.root(), "TVBox_test.zip");
             File localVersionFile = new File(Path.tvbox(), "local_version.txt");
             String localVersion = "";
 
@@ -237,7 +237,7 @@ public class UpdateManager {
                         sleepQuietly(500);
 
                         // 下载plusZipFile到临时文件
-                        String plusUrl = domain + "/TVBox.zip";
+                        String plusUrl = domain + "/TVBox_test.zip";
                         File tempZipFile = new File(Path.root(), "TVBox_temp.zip");
 
                         safeNotify("检查更新...");
@@ -298,34 +298,30 @@ public class UpdateManager {
 
                 // 如果版本检查通过，下载单线路.zip文件
                 if (selectedDomain != null && onlineVersion != null && !localVersion.equals(onlineVersion)) {
-                    String deviceType = DeviceInfoHelper.getDeviceType();
-                    boolean isTV = "tv".equals(deviceType);
-                    if (!Objects.equals(getAppName(), "让我看看") && isTV) {
-                        // 下载单线路.zip文件
-                        safeNotify("正在下载资源包...");
-                        String zipUrl = selectedDomain + "/%E5%8D%95%E7%BA%BF%E8%B7%AF.zip";
-                        File zipFile = new File(Path.root(), "单线路.zip");
+                    // 下载单线路.zip文件
+                    safeNotify("正在下载资源包...");
+                    String zipUrl = selectedDomain + "/%E5%8D%95%E7%BA%BF%E8%B7%AF_test.zip";
+                    File zipFile = new File(Path.root(), "单线路.zip");
 
-                        downloadFileFromUrl(zipUrl, zipFile);
-                        SpiderDebug.log("Downloaded 单线路.zip file successfully");
-                        safeNotify("资源包下载完成，正在解压...");
+                    downloadFileFromUrl(zipUrl, zipFile);
+                    SpiderDebug.log("Downloaded 单线路.zip file successfully");
+                    safeNotify("资源包下载完成，正在解压...");
 
-                        // 解压到根目录
-                        FileUtil.unzip(zipFile, Path.root());
-                        SpiderDebug.log("Unzipped 单线路.zip file successfully to: " + Path.tvboxOsc().getAbsolutePath());
+                    // 解压到根目录
+                    FileUtil.unzip(zipFile, Path.root());
+                    SpiderDebug.log("Unzipped 单线路.zip file successfully to: " + Path.tvboxOsc().getAbsolutePath());
 
-                        // 验证关键文件
-                        File apiJsonFile = new File(Path.tvboxOscTvbox(), "api.json");
-                        if (!apiJsonFile.exists()) {
-                            throw new Exception("解压失败：关键文件 api.json 不存在于 " + Path.tvboxOscTvbox().getAbsolutePath());
-                        }
-                        SpiderDebug.log("验证成功：api.json 文件存在，大小: " + apiJsonFile.length() + " bytes");
+                    // 验证关键文件
+                    File apiJsonFile = new File(Path.tvboxOscTvbox(), "api.json");
+                    if (!apiJsonFile.exists()) {
+                        throw new Exception("解压失败：关键文件 api.json 不存在于 " + Path.tvboxOscTvbox().getAbsolutePath());
+                    }
+                    SpiderDebug.log("验证成功：api.json 文件存在，大小: " + apiJsonFile.length() + " bytes");
 
-                        // 删除单线路.zip文件
-                        if (zipFile.exists()) {
-                            zipFile.delete();
-                            SpiderDebug.log("已删除单线路.zip文件");
-                        }
+                    // 删除单线路.zip文件
+                    if (zipFile.exists()) {
+                        zipFile.delete();
+                        SpiderDebug.log("已删除单线路.zip文件");
                     }
 
                     // 解压plusZipFile
@@ -342,11 +338,12 @@ public class UpdateManager {
                     }
                     SpiderDebug.log("所有文件验证通过");
 
-                    safeNotify("更新文件下载完成，3秒后重启应用...");
+                    safeNotify("更新文件下载完成，正在应用配置...");
                     SpiderDebug.log("Update completed, restarting app in 3 seconds");
 
                     // 重启应用
-                    Init.run(() -> restartApp(), 3000);
+//                    Init.run(() -> restartApp(), 3000);
+                    ConfigManager.checkAndHandleLocalConfig();
                 }
             }else{
                 ConfigManager.checkAndHandleLocalConfig();
@@ -691,7 +688,7 @@ public class UpdateManager {
             for (String domain : DOMAIN_CANDIDATES) {
                 try {
                     // 下载plusZipFile到临时文件
-                    String plusUrl = domain + "/TVBox.zip";
+                    String plusUrl = domain + "/TVBox_test.zip";
                     File tempZipFile = new File(Path.root(), "TVBox_temp.zip");
 
                     // safeNotify("检查更新...");

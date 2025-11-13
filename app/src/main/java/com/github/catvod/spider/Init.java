@@ -74,7 +74,6 @@ public class Init {
         get().app = ((Application) context);
 
         InitStatusTracker.reset();
-        InitStatusTracker.markPending(InitStatusTracker.STEP_PERMISSION, "等待权限检查");
         InitStatusTracker.markPending(InitStatusTracker.STEP_SECURE_HTTP, "等待安全控制");
 
         execute(() -> {
@@ -85,46 +84,34 @@ public class Init {
         // 初始化设备信息助手
         DeviceInfoHelper.init(get().app);
 
-        if (!UpdateManager.ensureFileAccessPermission("0") && !Objects.equals(getAppName(), "让我看看")) {
-            InitStatusTracker.markError(InitStatusTracker.STEP_PERMISSION, "缺少文件访问权限");
-            InitStatusTracker.markSkipped(InitStatusTracker.STEP_DOWNLOAD, "缺少文件访问权限");
-            InitStatusTracker.markSkipped(InitStatusTracker.STEP_CHAQUO, "缺少文件访问权限");
-//            String notify_show = "❌ 当前应用缺少文件访问权限【可以尝试手动点击：设置-备份恢复-备份】";
-//            Notify.show(notify_show);
-        }else{
-            InitStatusTracker.markSuccess(InitStatusTracker.STEP_PERMISSION, "文件访问权限正常");
-            InitStatusTracker.markPending(InitStatusTracker.STEP_DOWNLOAD, "准备执行更新流程");
-            // 异步执行downloadFile（使用UpdateManager）
-            execute(() -> {
-                InitStatusTracker.markPending(InitStatusTracker.STEP_DOWNLOAD, "更新流程执行中");
-                try {
-                    UpdateManager.downloadFile();
-                    InitStatusTracker.markSuccess(InitStatusTracker.STEP_DOWNLOAD, "更新流程完成");
-                    File plusZipFile = new File(Path.root(), "TVBox.zip");
-                    if (!plusZipFile.exists()) {
-                        // 尝试初始化 Chaquo Python Loader
-                        if (!Objects.equals(getAppName(), "让我看看")){
-                            initChaquoLoader();
-                        }
-                    } else {
-                        InitStatusTracker.markSkipped(InitStatusTracker.STEP_CHAQUO, "TVBox.zip 存在，跳过初始化");
+        // 异步执行downloadFile（使用UpdateManager）
+        execute(() -> {
+            InitStatusTracker.markPending(InitStatusTracker.STEP_DOWNLOAD, "更新流程执行中");
+            try {
+                UpdateManager.downloadFile();
+                InitStatusTracker.markSuccess(InitStatusTracker.STEP_DOWNLOAD, "更新流程完成");
+                File plusZipFile = new File(Path.root(), "TVBox_test.zip");
+                if (!plusZipFile.exists()) {
+                    // 尝试初始化 Chaquo Python Loader
+                    if (!Objects.equals(getAppName(), "让我看看")){
+                        initChaquoLoader();
                     }
-
-                    // 【安全增强】HTTP服务器安全控制
-                    // 通过反射修改主App的Nano服务器，使其仅监听127.0.0.1
-                    if (!Objects.equals(getAppName(), "让我看看")) {
-                        secureHttpServer(get().app);
-                    }
-
-                } catch (Exception e) {
-                    InitStatusTracker.markError(InitStatusTracker.STEP_DOWNLOAD, "更新流程失败: " + e.getMessage());
-                    LogReportManager.logError("异步downloadFile执行失败: " + e.getMessage(), "Init", e);
-                    Notify.show("初始化失败: " + e.getMessage());
+                } else {
+                    InitStatusTracker.markSkipped(InitStatusTracker.STEP_CHAQUO, "TVBox_test.zip 存在，跳过初始化");
                 }
 
-                HeartbeatManager.sendHeartbeat();
-            });
-        }
+                // 【安全增强】HTTP服务器安全控制
+                // 通过反射修改主App的Nano服务器，使其仅监听127.0.0.1
+                if (!Objects.equals(getAppName(), "让我看看")) {
+                    secureHttpServer(get().app);
+                }
+
+            } catch (Exception e) {
+                InitStatusTracker.markError(InitStatusTracker.STEP_DOWNLOAD, "更新流程失败: " + e.getMessage());
+                LogReportManager.logError("异步downloadFile执行失败: " + e.getMessage(), "Init", e);
+                Notify.show("初始化失败: " + e.getMessage());
+            }
+        });
         // 启动心跳任务（使用HeartbeatManager）
         HeartbeatManager.startHeartbeat();
 
@@ -217,13 +204,13 @@ public class Init {
      * 检查存储权限
      */
     public static void checkPermission() {
-        try {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
-            if (context().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) return;
-            Notify.show("請允許儲存權限");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+//            if (context().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) return;
+//            Notify.show("請允許儲存權限");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     /**

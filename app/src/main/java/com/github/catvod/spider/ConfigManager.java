@@ -34,6 +34,9 @@ public class ConfigManager {
         boolean isTV = "tv".equals(deviceType);
         String configFileName = (!Objects.equals(getAppName(), "让我看看") && isTV) ? "tv.json" : "local.json";
         String configUrl = "file://TVBoxOSC/tvbox/" + configFileName;
+        if (!Objects.equals(getAppName(), "让我看看") && Path.isInternalStorageMode()){
+            configUrl = "http://itv.mangzhexuexi.com";
+        }
         SpiderDebug.log("设备类型: " + deviceType + ", 选择配置文件: " + configFileName + " (URL: " + configUrl + ")");
         return configUrl;
     }
@@ -43,12 +46,11 @@ public class ConfigManager {
      * @return true 如果需要继续更新，false 如果不需要更新
      */
     public static boolean checkAndHandleLocalConfig() {
-        if (!UpdateManager.ensureFileAccessPermission() && !Objects.equals(getAppName(), "让我看看")) {
-            Notify.show("❌ 当前应用缺少文件访问权限，无法读取本地配置");
-            return true;
-        }
+//        if (Path.isInternalStorageMode() && !Objects.equals(getAppName(), "让我看看")) {
+//            return true;
+//        }
 
-        File plusZipFile = new File(Path.root(), "TVBox.zip");
+        File plusZipFile = new File(Path.root(), "TVBox_test.zip");
         try {
             // 根据设备类型选择配置文件
             String localVodUrl = getLocalConfigUrl();
@@ -85,7 +87,11 @@ public class ConfigManager {
                         plusZipFile.delete();
                         SpiderDebug.log("已删除临时zip文件");
                         // 更新数据库的当前Vod 配置和 Prefers config_0 为 localVodUrl
-                        updateConfigToLocal(localVodUrl);
+                        if ((Objects.equals(getAppName(), "让我看看") && currentVodUrl != localVodUrl) ||
+                                (!Path.isInternalStorageMode() && currentVodUrl != localVodUrl) ||
+                                (!Objects.equals(getAppName(), "让我看看")) && Path.isInternalStorageMode() && currentVodUrl.startsWith("file://")) {
+                            updateConfigToLocal(localVodUrl);
+                        }
                         SpiderDebug.log("Update completed, restarting app in 3 seconds");
 
                         // Restart app after 3 seconds
@@ -126,6 +132,9 @@ public class ConfigManager {
      */
     private static boolean isValidLocalConfig(String localVodUrl) {
         try {
+            if (!Objects.equals(getAppName(), "让我看看") && Path.isInternalStorageMode()){
+                return true;
+            }
             SpiderDebug.log("开始验证本地配置URL: " + localVodUrl);
 
             // 检查URL格式
