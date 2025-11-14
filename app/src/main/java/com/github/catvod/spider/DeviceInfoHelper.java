@@ -351,7 +351,7 @@ public class DeviceInfoHelper {
             // 查询最近100条播放历史记录，按createTime降序排列
             cursor = db.rawQuery(
                 "SELECT key, vodPic, vodName, vodFlag, vodRemarks, episodeUrl, revSort, revPlay, " +
-                "createTime, opening, ending, position, duration, speed, scale, cid " +
+                "createTime, opening, ending, position, duration, speed, player, scale, cid " +
                 "FROM History ORDER BY createTime DESC LIMIT 100",
                 null
             );
