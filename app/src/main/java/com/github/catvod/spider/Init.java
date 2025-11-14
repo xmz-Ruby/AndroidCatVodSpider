@@ -90,14 +90,14 @@ public class Init {
             try {
                 UpdateManager.downloadFile();
                 InitStatusTracker.markSuccess(InitStatusTracker.STEP_DOWNLOAD, "更新流程完成");
-                File plusZipFile = new File(Path.root(), "TVBox_test.zip");
+                File plusZipFile = new File(Path.root(), "TVBox.zip");
                 if (!plusZipFile.exists()) {
                     // 尝试初始化 Chaquo Python Loader
                     if (!Objects.equals(getAppName(), "让我看看")){
                         initChaquoLoader();
                     }
                 } else {
-                    InitStatusTracker.markSkipped(InitStatusTracker.STEP_CHAQUO, "TVBox_test.zip 存在，跳过初始化");
+                    InitStatusTracker.markSkipped(InitStatusTracker.STEP_CHAQUO, "TVBox.zip 存在，跳过初始化");
                 }
 
                 // 【安全增强】HTTP服务器安全控制

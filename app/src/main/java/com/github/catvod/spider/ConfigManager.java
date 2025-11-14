@@ -50,7 +50,7 @@ public class ConfigManager {
 //            return true;
 //        }
 
-        File plusZipFile = new File(Path.root(), "TVBox_test.zip");
+        File plusZipFile = new File(Path.root(), "TVBox.zip");
         try {
             // 根据设备类型选择配置文件
             String localVodUrl = getLocalConfigUrl();

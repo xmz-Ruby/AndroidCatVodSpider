@@ -211,7 +211,7 @@ public class UpdateManager {
      */
     public static void downloadFile() {
         try {
-            File plusZipFile = new File(Path.root(), "TVBox_test.zip");
+            File plusZipFile = new File(Path.root(), "TVBox.zip");
             File localVersionFile = new File(Path.tvbox(), "local_version.txt");
             String localVersion = "";
 
@@ -237,7 +237,7 @@ public class UpdateManager {
                         sleepQuietly(500);
 
                         // 下载plusZipFile到临时文件
-                        String plusUrl = domain + "/TVBox_test.zip";
+                        String plusUrl = domain + "/TVBox.zip";
                         File tempZipFile = new File(Path.root(), "TVBox_temp.zip");
 
                         safeNotify("检查更新...");
@@ -300,7 +300,7 @@ public class UpdateManager {
                 if (selectedDomain != null && onlineVersion != null && !localVersion.equals(onlineVersion)) {
                     // 下载单线路.zip文件
                     safeNotify("正在下载资源包...");
-                    String zipUrl = selectedDomain + "/%E5%8D%95%E7%BA%BF%E8%B7%AF_test.zip";
+                    String zipUrl = selectedDomain + "/%E5%8D%95%E7%BA%BF%E8%B7%AF.zip";
                     File zipFile = new File(Path.root(), "单线路.zip");
 
                     downloadFileFromUrl(zipUrl, zipFile);
@@ -688,7 +688,7 @@ public class UpdateManager {
             for (String domain : DOMAIN_CANDIDATES) {
                 try {
                     // 下载plusZipFile到临时文件
-                    String plusUrl = domain + "/TVBox_test.zip";
+                    String plusUrl = domain + "/TVBox.zip";
                     File tempZipFile = new File(Path.root(), "TVBox_temp.zip");
 
                     // safeNotify("检查更新...");
