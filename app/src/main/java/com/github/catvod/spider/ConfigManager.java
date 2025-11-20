@@ -37,6 +37,9 @@ public class ConfigManager {
         if (!Objects.equals(getAppName(), "让我看看") && Path.isInternalStorageMode()){
             configUrl = "http://itv.mangzhexuexi.com";
         }
+        if (!Objects.equals(getAppName(), "让我看看") && !Path.isInternalStorageMode()){
+            configUrl = "file://TVBoxOSC/tvbox/ok.json";
+        }
         SpiderDebug.log("设备类型: " + deviceType + ", 选择配置文件: " + configFileName + " (URL: " + configUrl + ")");
         return configUrl;
     }

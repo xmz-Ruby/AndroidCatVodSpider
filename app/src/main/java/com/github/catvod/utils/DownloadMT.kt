@@ -13,12 +13,16 @@ import java.util.*
 import kotlin.math.min
 
 object DownloadMT {
-    private val THREAD_NUM: Int = 16
+    private val DEFAULT_THREAD_NUM: Int = 16
 
     private val infos = mutableMapOf<String, Array<Any>>();
 
     fun proxyMultiThread(url: String, headers: Map<String, String>): Array<out Any?>? = runBlocking {
-        proxyAsync(url, headers)
+        proxyAsync(url, headers, DEFAULT_THREAD_NUM)
+    }
+
+    fun proxyMultiThread(url: String, headers: Map<String, String>, threadNum: Int): Array<out Any?>? = runBlocking {
+        proxyAsync(url, headers, threadNum)
     }
 
     /**
@@ -33,10 +37,10 @@ object DownloadMT {
         return info
     }
 
-    private suspend fun proxyAsync(url: String, headers: Map<String, String>): Array<out Any?>? {
+    private suspend fun proxyAsync(url: String, headers: Map<String, String>, threadNum: Int): Array<out Any?>? {
 
-        /*  val service = Executors.newFixedThreadPool(THREAD_NUM)*/
-        SpiderDebug.log("--proxyMultiThread: THREAD_NUM: $THREAD_NUM")
+        /*  val service = Executors.newFixedThreadPool(threadNum)*/
+        SpiderDebug.log("--proxyMultiThread: threadNum: $threadNum")
 
 
         try {
@@ -79,7 +83,7 @@ object DownloadMT {
             )
             //没有range,无需分割
 
-            val partList = generatePart(rangeObj, total)
+            val partList = generatePart(rangeObj, total, threadNum)
 
             // 存储执行结果的List
             val jobs = mutableListOf<Deferred<InputStream>>()
@@ -120,11 +124,11 @@ object DownloadMT {
 
             /* respHeaders.put("Access-Control-Allow-Credentials", "true");
         respHeaders.put("Access-Control-Allow-Origin", "*");*/
-            resHeader["Content-Length"] = (partList[THREAD_NUM - 1][1] - partList[0][0] + 1).toString()
+            resHeader["Content-Length"] = (partList[partList.size - 1][1] - partList[0][0] + 1).toString()
             resHeader.remove("content-length")
 
             resHeader["Content-Range"] = String.format(
-                "bytes %s-%s/%s", partList[0][0], partList[THREAD_NUM - 1][1], total
+                "bytes %s-%s/%s", partList[0][0], partList[partList.size - 1][1], total
             )
             resHeader.remove("content-range")
 
@@ -144,7 +148,7 @@ object DownloadMT {
         }
     }
 
-    fun generatePart(rangeObj: Map<String?, String>, total: String): List<LongArray> {
+    fun generatePart(rangeObj: Map<String?, String>, total: String, threadNum: Int): List<LongArray> {
         val totalSize = total.toLong()
         //超过10GB，分块是32Mb，不然是16MB
         val partSize = if (totalSize > 1024L * 1024L * 1024L * 10L) 1024 * 1024 * 8 * 4L else 1024 * 1024 * 8 * 2L
@@ -156,9 +160,9 @@ object DownloadMT {
         end = min(end.toDouble(), (totalSize - 1).toDouble()).toLong()
         val length = end - start + 1
 
-        val size = length / THREAD_NUM
+        val size = length / threadNum
         val partList: MutableList<LongArray> = ArrayList()
-        for (i in 0..<THREAD_NUM) {
+        for (i in 0..<threadNum) {
             val partEnd = min((start + size).toDouble(), end.toDouble()).toLong()
 
             partList.add(longArrayOf(start, partEnd))

@@ -92,6 +92,10 @@ public class ProxyVideo {
         return DownloadMT.INSTANCE.proxyMultiThread(url, headers);
     }
 
+    public static Object[] proxyMultiThread(String url, Map<String, String> headers, int threadNum) {
+        return DownloadMT.INSTANCE.proxyMultiThread(url, headers, threadNum);
+    }
+
 
     public static Map<String, String> parseRange(String range) {
         SpiderDebug.log("parseRange:" + range);
