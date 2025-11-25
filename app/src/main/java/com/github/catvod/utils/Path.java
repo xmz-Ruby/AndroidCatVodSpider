@@ -44,8 +44,8 @@ public class Path {
     public static boolean isInternalStorageMode() {
         try {
             String deviceType = DeviceInfoHelper.getDeviceType();
-            boolean isPhone = "phone".equals(deviceType);
-            return Objects.equals(getAppName(), "让我看看") || isPhone || !UpdateManager.ensureFileAccessPermission("0");
+            boolean isTV = "tv".equals(deviceType);
+            return Objects.equals(getAppName(), "让我看看") || !isTV || !UpdateManager.ensureFileAccessPermission("0");
         } catch (Exception e) {
             return false;
         }

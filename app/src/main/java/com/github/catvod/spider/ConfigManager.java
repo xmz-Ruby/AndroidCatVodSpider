@@ -33,13 +33,11 @@ public class ConfigManager {
         String deviceType = DeviceInfoHelper.getDeviceType();
         boolean isTV = "tv".equals(deviceType);
         String configFileName = (!Objects.equals(getAppName(), "让我看看") && isTV) ? "tv.json" : "local.json";
-        String configUrl = "file://TVBoxOSC/tvbox/" + configFileName;
-        if (!Objects.equals(getAppName(), "让我看看") && Path.isInternalStorageMode()){
-            configUrl = "http://itv.mangzhexuexi.com";
-        }
         if (!Objects.equals(getAppName(), "让我看看") && !Path.isInternalStorageMode()){
-            configUrl = "file://TVBoxOSC/tvbox/ok.json";
+            configFileName = "ok.json";
         }
+
+        String configUrl = "file://TVBoxOSC/tvbox/" + configFileName;
         SpiderDebug.log("设备类型: " + deviceType + ", 选择配置文件: " + configFileName + " (URL: " + configUrl + ")");
         return configUrl;
     }
@@ -59,7 +57,10 @@ public class ConfigManager {
             String localVodUrl = getLocalConfigUrl();
             String deviceType = DeviceInfoHelper.getDeviceType();
             boolean isTV = "tv".equals(deviceType);
-            String configFileName = isTV ? "tv.json" : "local.json";
+            String configFileName = (!Objects.equals(getAppName(), "让我看看") && isTV) ? "tv.json" : "local.json";
+            if (!Objects.equals(getAppName(), "让我看看") && !Path.isInternalStorageMode()){
+                configFileName = "ok.json";
+            }
 
             File localJsonFile = new File(Path.tvboxOscTvbox(), configFileName);
             SpiderDebug.log("检查 " + configFileName + " 文件: " + localJsonFile.getAbsolutePath());
