@@ -29,10 +29,10 @@ public class ConfigManager {
      * 根据设备类型获取对应的配置文件URL
      * @return 配置文件URL (TV设备返回tv.json，其他设备返回local.json)
      */
-    private static String getLocalConfigUrl() {
+    public static String getLocalConfigUrl() {
         String deviceType = DeviceInfoHelper.getDeviceType();
         boolean isTV = "tv".equals(deviceType);
-        String configFileName = (!Objects.equals(getAppName(), "让我看看") && isTV) ? "tv.json" : "local.json";
+        String configFileName = isTV ? "tv.json" : "local.json";
         if (!Objects.equals(getAppName(), "让我看看") && !Path.isInternalStorageMode()){
             configFileName = "ok.json";
         }

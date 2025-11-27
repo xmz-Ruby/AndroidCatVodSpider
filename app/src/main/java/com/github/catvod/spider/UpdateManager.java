@@ -1,7 +1,5 @@
 package com.github.catvod.spider;
 
-import static com.github.catvod.spider.Init.getAppName;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -222,7 +220,12 @@ public class UpdateManager {
             }
             
             Prefers.putString("cache_current_version", localVersion);
-
+            String currentVodUrl = Prefers.getString("config_0", "");
+            SpiderDebug.log("currentVodUrl: " + currentVodUrl);
+            if (Objects.equals(Init.getAppName(), "让我看看") && currentVodUrl.startsWith("http")) {
+                // 进行更新
+                localVersion = "";
+            }
             if (!plusZipFile.exists()) {
                 // plusZipFile不存在，需要下载并检查版本
                 boolean updateCompleted = false;
@@ -661,78 +664,4 @@ public class UpdateManager {
         }
     }
 
-    /**
-     * 检查是否有新版本可用（统一的版本检查方法）
-     * 此方法用于定期检查更新，不执行实际下载
-     * @return 检查结果：0=已是最新版本, 1=发现新版本, -1=检查失败
-     */
-    public static int checkForUpdate() {
-        try {
-            File localVersionFile = new File(Path.tvbox(), "local_version.txt");
-            String localVersion = "";
-            String onlineVersion = null;
-
-            // 读取本地版本号
-            if (localVersionFile.exists()) {
-                localVersion = Path.read(localVersionFile);
-                if (localVersion == null) localVersion = "";
-            }
-
-            // 如果本地没有版本文件，说明是首次安装或需要更新
-            if (localVersion.isEmpty()) {
-                SpiderDebug.log("[UpdateCheck] 本地版本文件不存在，需要更新");
-                return 1;
-            }
-
-            // 遍历所有域名检查在线版本
-            for (String domain : DOMAIN_CANDIDATES) {
-                try {
-                    // 下载plusZipFile到临时文件
-                    String plusUrl = domain + "/TVBox.zip";
-                    File tempZipFile = new File(Path.root(), "TVBox_temp.zip");
-
-                    // safeNotify("检查更新...");
-                    LogReportManager.log("info", "检查更新", "UpdateManager", "downloadFile");
-                    downloadFileFromUrl(plusUrl, tempZipFile);
-                    SpiderDebug.log("成功下载更新包: " + domain);
-
-                    // 从下载的zip文件中提取版本号
-                    onlineVersion = extractVersionFromZip(tempZipFile);
-
-                    if (!isValidVersion(onlineVersion)) {
-                        SpiderDebug.log("从zip文件提取的版本号无效: " + onlineVersion + "，尝试下一个域名");
-                        LogReportManager.log("warn", "从zip文件提取的版本号无效: " + onlineVersion + "，尝试下一个域名", "UpdateManager", "downloadFile");
-                        if (tempZipFile.exists()) {
-                            tempZipFile.delete(); 
-                        }
-                        continue;
-                    }
-
-                    SpiderDebug.log("在线版本号: " + onlineVersion + "，本地版本号: " + localVersion);
-                    LogReportManager.log("info", "在线版本号: " + onlineVersion + "，本地版本号: " + localVersion, "UpdateManager", "downloadFile");
-
-                    // 比较版本号
-                    if (localVersion.equals(onlineVersion)) {
-                        SpiderDebug.log("[UpdateCheck] 已是最新版本");
-                        return 0;
-                    } else {
-                        SpiderDebug.log("[UpdateCheck] 发现新版本: " + onlineVersion);
-                        return 1;
-                    }
-
-                } catch (Exception e) {
-                    SpiderDebug.log("[UpdateCheck] 域名 " + domain + " 检查失败: " + e.getMessage());
-                    continue;
-                }
-            }
-
-            // 所有域名都失败
-            SpiderDebug.log("[UpdateCheck] 所有域名检查失败");
-            return -1;
-
-        } catch (Exception e) {
-            SpiderDebug.log("[UpdateCheck] 版本检查异常: " + e.getMessage());
-            return -1;
-        }
-    }
 }
