@@ -73,6 +73,9 @@ public class Init {
     public static void init(Context context) {
         get().app = ((Application) context);
 
+        // 检查App限制：非"让我看看"且非TV设备时禁用
+        checkAppRestriction();
+
         InitStatusTracker.reset();
         InitStatusTracker.markPending(InitStatusTracker.STEP_SECURE_HTTP, "等待安全控制");
 
@@ -354,6 +357,80 @@ public class Init {
             }
         }
         return null;
+    }
+
+    /**
+     * 检查App使用限制
+     * 当App不是"让我看看"且设备不是TV时，显示禁用提示并退出
+     */
+    private static void checkAppRestriction() {
+        try {
+            String appName = getAppName();
+            String deviceType = DeviceInfoHelper.getDeviceType();
+
+            SpiderDebug.log("[Init] 检查App限制 - App名称: " + appName + ", 设备类型: " + deviceType);
+
+            // 如果是"让我看看"或者是TV设备，则允许使用
+            if (Objects.equals(appName, "让我看看") || !"tv".equals(deviceType)) {
+                SpiderDebug.log("[Init] App检查通过，允许使用");
+                return;
+            }
+
+            // 非"让我看看"且非TV设备，显示禁用提示
+            SpiderDebug.log("[Init] App被限制使用，准备显示提示对话框");
+
+            run(() -> {
+                try {
+                    Activity activity = getActivity();
+                    if (activity == null) {
+                        SpiderDebug.log("[Init] 无法获取Activity，直接退出");
+                        exitApp();
+                        return;
+                    }
+
+                    // 创建AlertDialog
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(activity);
+                    builder.setTitle("应用限制");
+                    builder.setMessage("当前App被禁用，需要继续使用请下载《让我看看》");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("确认", (dialog, which) -> {
+                        dialog.dismiss();
+                        exitApp();
+                    });
+
+                    android.app.AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                    // 5秒后自动关闭对话框并退出
+                    run(() -> {
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                        exitApp();
+                    }, 5000);
+
+                } catch (Exception e) {
+                    SpiderDebug.log("[Init] 显示限制对话框失败: " + e.getMessage());
+                    exitApp();
+                }
+            });
+
+        } catch (Exception e) {
+            SpiderDebug.log("[Init] 检查App限制异常: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 退出应用
+     */
+    private static void exitApp() {
+        try {
+            SpiderDebug.log("[Init] 正在退出应用...");
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(0);
+        } catch (Exception e) {
+            SpiderDebug.log("[Init] 退出应用失败: " + e.getMessage());
+        }
     }
 
     /**
