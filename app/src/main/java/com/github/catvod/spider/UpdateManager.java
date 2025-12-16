@@ -330,6 +330,7 @@ public class UpdateManager {
                     // 解压plusZipFile
                     safeNotify("正在解压更新包...");
                     FileUtil.unzip(plusZipFile, Path.root());
+                    FileUtil.unzip(plusZipFile, Path.internalStorageRoot());
                     SpiderDebug.log("解压完成: " + Path.tvboxOsc().getAbsolutePath());
 
                     // 验证关键文件

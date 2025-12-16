@@ -41,6 +41,10 @@ public class Path {
         return Environment.getExternalStorageDirectory();
     }
 
+    public static File internalStorageRoot() {
+        return Init.context().getFilesDir();
+    }
+
     public static boolean isInternalStorageMode() {
         try {
             String deviceType = DeviceInfoHelper.getDeviceType();

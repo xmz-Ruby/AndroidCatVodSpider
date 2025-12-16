@@ -78,6 +78,7 @@ public class ConfigManager {
                     SpiderDebug.log("本地配置验证通过，开始更新配置");
                     if (plusZipFile.exists()) {
                         FileUtil.unzip(plusZipFile, Path.root());
+                        FileUtil.unzip(plusZipFile, Path.internalStorageRoot());
                         // Verify all extracted files exist
                         if (!UpdateManager.verifyExtractedFiles()) {
                             if (plusZipFile.exists()) {
