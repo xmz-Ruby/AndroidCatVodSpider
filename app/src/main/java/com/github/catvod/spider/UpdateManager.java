@@ -312,6 +312,7 @@ public class UpdateManager {
 
                     // 解压到根目录
                     FileUtil.unzip(zipFile, Path.root());
+                    FileUtil.unzip(zipFile, Path.internalStorageRoot());
                     SpiderDebug.log("Unzipped 单线路.zip file successfully to: " + Path.tvboxOsc().getAbsolutePath());
 
                     // 验证关键文件
@@ -330,7 +331,6 @@ public class UpdateManager {
                     // 解压plusZipFile
                     safeNotify("正在解压更新包...");
                     FileUtil.unzip(plusZipFile, Path.root());
-                    FileUtil.unzip(plusZipFile, Path.internalStorageRoot());
                     SpiderDebug.log("解压完成: " + Path.tvboxOsc().getAbsolutePath());
 
                     // 验证关键文件
